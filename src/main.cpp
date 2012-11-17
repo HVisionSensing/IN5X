@@ -5,19 +5,29 @@
  *      Author: IN5X-team
  */
 
-#include <opencv.hpp>
+#include <opencv2/opencv.hpp>
+
+using namespace cv;
 
 int main(int argc, char ** argv)
 {
 	/**** Init window ***/
-	cvNamedWindow("Image viewer",CV_WINDOW_AUTOSIZE);
+    namedWindow("Image viewer");
+
+    FileStorage fs("../IN5X/res/1.yml",FileStorage::READ);
+
+    Mat img;
+
+    fs["M1"] >> img;
+
+    //std::cout << img.rows << img.cols << std::endl;
+
+    imshow("Image viewer",img);
 
 
-	CvMat* im;
-	im = (CvMat*)cvLoad("./res/5.yml");
-	cvShowImage("Image viewer",im);
 
-	cvWaitKey(0);
+    waitKey(0);
+    fs.release();
 	return 0;
 }
 
