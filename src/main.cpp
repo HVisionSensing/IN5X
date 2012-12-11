@@ -13,16 +13,21 @@ using namespace cv;
 
 int main(void)
 {
-	/**** Init window ***/
-    namedWindow("Image viewer");
+    FileStorage fs("../IN5X/res/2.yml", FileStorage::READ);
 
-    FileStorage fs("../IN5X/res/1.yml", FileStorage::READ);
+    Mat temp;
 
-    Mat img;
+    fs["M1"] >> temp;
 
-    fs["M1"] >> img;
+    Mat img(temp.rows,temp.cols,CV_8UC1);
 
-    //std::cout << img.rows << img.cols << std::endl;
+    for(int i=0;i<img.rows;i++)
+    {
+        for(int j=0;j<img.cols;j++)
+        {
+            img.at<unsigned char>(i,j)=int(temp.at<float>(i,j)*255/5);
+        }
+    }
 
     imshow("Image viewer", img);
 
@@ -30,13 +35,13 @@ int main(void)
     imshow("Histogram", h.getHistogramImage(img));
 
     Mat thresholded;
-    threshold(img, thresholded, 0.58, 255, THRESH_BINARY);
+    threshold(temp, thresholded, 0.58, 255, THRESH_BINARY);
     imshow("Thresholding", thresholded);
 
 
     // Need to implement a method to find the first pic of histogram
     // doesn't work yet
-    MatND hist = h.getHistogram(img);
+    MatND hist = h.getHistogram(temp);
     normalize(hist, hist, 1.0);
 
     waitKey(0);

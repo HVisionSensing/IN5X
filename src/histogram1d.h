@@ -13,6 +13,7 @@ private:
     const float* ranges[1];
     int channels[1]; // only 1 channel used here
 
+
 public:
     Histogram1D();
     MatND getHistogram(const Mat &image);

@@ -2,12 +2,11 @@
 
 Histogram1D::Histogram1D() {
     histSize[0] = 512;
-    hranges[0] = 0.0;
-    hranges[1] = 255.0;
+    hranges[0] = 0;
+    hranges[1] = 255;
     ranges[0] = hranges;
     channels[0] = 0; // by default, we look at channel 0
 }
-
 
 MatND Histogram1D::getHistogram(const Mat &image) {
     MatND hist;
@@ -20,12 +19,11 @@ MatND Histogram1D::getHistogram(const Mat &image) {
                 hist, // the resulting histogram
                 1, // it is a 1D histogram
                 histSize, // number of bins
-                ranges, // pixel value range
+                ranges // pixel value range
              );
 
     return hist;
 }
-
 
 // Computes the 1D histogram and returns an image of it.
 Mat Histogram1D::getHistogramImage(const Mat &image) {
