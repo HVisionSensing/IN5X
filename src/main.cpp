@@ -35,13 +35,13 @@ int main(void)
     imshow("Histogram", h.getHistogramImage(img));
 
     Mat thresholded;
-    threshold(temp, thresholded, 0.58, 255, THRESH_BINARY);
+    threshold(img, thresholded, 28, 255, THRESH_BINARY);
     imshow("Thresholding", thresholded);
 
 
     // Need to implement a method to find the first pic of histogram
     // doesn't work yet
-    MatND hist = h.getHistogram(temp);
+    MatND hist = h.getHistogram(img);
     normalize(hist, hist, 1.0);
 
     waitKey(0);
