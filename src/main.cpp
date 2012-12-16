@@ -8,46 +8,54 @@
 #include <opencv2/opencv.hpp>
 
 #include "histogram1d.h"
-
+#include "preprocessing.h"
+#include "processing.h"
 using namespace cv;
+
+void calcSeuil(MatND &hist);
 
 int main(void)
 {
-    FileStorage fs("../IN5X/res/2.yml", FileStorage::READ);
+    FileStorage fs("../IN5X/res/6.yml", FileStorage::READ);
 
     Mat temp;
 
     fs["M1"] >> temp;
 
-    Mat img(temp.rows,temp.cols,CV_8UC1);
-
-    for(int i=0;i<img.rows;i++)
-    {
-        for(int j=0;j<img.cols;j++)
-        {
-            img.at<unsigned char>(i,j)=int(temp.at<float>(i,j)*255/5);
-        }
-    }
+    Mat img =PreProcessing::getUCHARImage(temp);
+    PreProcessing::getExpansion(img);
+    PreProcessing::getMedianFilter3(img);
 
     imshow("Image viewer", img);
 
-    Histogram1D h;
-    imshow("Histogram", h.getHistogramImage(img));
+    Histogram1D h(img);
+    Mat histImg = h.getHistogramImage();
+    imshow("Histogram", histImg);
 
-    Mat thresholded;
-    threshold(img, thresholded, 28, 255, THRESH_BINARY);
-    imshow("Thresholding", thresholded);
+    h.cumulHist();
+    h.derivCumul();
 
+    std::vector<u_char> vecSeuil = h.getSeuilByDerivCumul();
 
-    // Need to implement a method to find the first pic of histogram
-    // doesn't work yet
-    MatND hist = h.getHistogram(img);
-    normalize(hist, hist, 1.0);
+    Mat thresholded = Processing::threshold(img,vecSeuil.at(1));
+    Mat multythresholded = Processing::multyThreshold(img,vecSeuil);
+
+    imshow("Threshold",thresholded );
+    imshow("Multy Threshold",multythresholded );
+
+    Mat kernel = Processing::getKernel(CV_SHAPE_ELLIPSE,Size_<int>(5,5));
+
+    Mat ero = Processing::getErosion(thresholded,kernel);
+    Mat ouverture = Processing::getDilatation(ero,kernel);
+
+    Mat dil = Processing::getDilatation(thresholded,kernel);
+    Mat fermeture = Processing::getErosion(dil,kernel);
+
+    imshow("Ouverture",ouverture);
+    imshow("Fermeture", fermeture);
 
     waitKey(0);
     fs.release();
 	return 0;
 }
-
-
 
