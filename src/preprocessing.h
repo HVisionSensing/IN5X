@@ -14,7 +14,7 @@ public:
     static void getMedianFilter3( Mat& img );
     static void getMedianFilter5( Mat& img );
     static void getExpansion(Mat& img);
-    static Mat  getUCHARImage(Mat& img);
+    static Mat  getUCHARImage(Mat& img,float value);
 
 
 };

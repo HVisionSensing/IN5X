@@ -3,7 +3,7 @@
 PreProcessing::PreProcessing()
 {}
 
-Mat PreProcessing::getUCHARImage(Mat& img)
+Mat PreProcessing::getUCHARImage(Mat& img,float value)
 {
     Mat dst(img.rows,img.cols,CV_8UC1);
 
@@ -11,7 +11,7 @@ Mat PreProcessing::getUCHARImage(Mat& img)
     {
         for(int j=0;j<img.cols;j++)
         {
-            dst.at<unsigned char>(i,j)=int(img.at<float>(i,j)*255/5);
+            dst.at<unsigned char>(i,j)=u_char(img.at<float>(i,j)*255/value);
         }
     }
     return dst;

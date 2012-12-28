@@ -16,13 +16,13 @@ void calcSeuil(MatND &hist);
 
 int main(void)
 {
-    FileStorage fs("../IN5X/res/6.yml", FileStorage::READ);
+    FileStorage fs("../IN5X/res/4.yml", FileStorage::READ);
 
     Mat temp;
 
     fs["M1"] >> temp;
 
-    Mat img =PreProcessing::getUCHARImage(temp);
+    Mat img =PreProcessing::getUCHARImage(temp,5.0);
     PreProcessing::getExpansion(img);
     PreProcessing::getMedianFilter3(img);
 
@@ -38,21 +38,22 @@ int main(void)
     std::vector<u_char> vecSeuil = h.getSeuilByDerivCumul();
 
     Mat thresholded = Processing::threshold(img,vecSeuil.at(1));
-    Mat multythresholded = Processing::multyThreshold(img,vecSeuil);
 
-    imshow("Threshold",thresholded );
-    imshow("Multy Threshold",multythresholded );
+    Mat kernel = Processing::getKernel(CV_SHAPE_RECT,Size_<int>(3,3));
+    Mat inv = Processing::getInverse(thresholded);
 
-    Mat kernel = Processing::getKernel(CV_SHAPE_ELLIPSE,Size_<int>(5,5));
+    Mat ero = Processing::getErosion(inv,kernel,1);
+    Mat fermeture = Processing::getDilatation(ero,kernel,1);
 
-    Mat ero = Processing::getErosion(thresholded,kernel);
-    Mat ouverture = Processing::getDilatation(ero,kernel);
+    Mat squelette = Processing::getDistanceTransform(fermeture);
 
-    Mat dil = Processing::getDilatation(thresholded,kernel);
-    Mat fermeture = Processing::getErosion(dil,kernel);
+    Mat squeletteUChar = PreProcessing::getUCHARImage(squelette,1.0);
+    PreProcessing::getExpansion(squeletteUChar);
+    Mat squeletteFinal = Processing::getMaxLocHyst(squeletteUChar,180,(u_char)0.4*180,Processing::CONNEXITY_8);
 
-    imshow("Ouverture",ouverture);
-    imshow("Fermeture", fermeture);
+    imshow("DT",squeletteUChar);
+    imshow("Squelette Final",squeletteFinal);
+
 
     waitKey(0);
     fs.release();

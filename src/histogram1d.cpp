@@ -203,7 +203,6 @@ void Histogram1D::derivCumul()
                 tmp += (mHistCumul.at<float>(k)/(2*DERIV_FACTOR+1));
             mHistCumulDeriv.at<float>(i) = mHistCumul.at<float>(i)-tmp;
         }
-        std::cout << mHistCumulDeriv << std::endl;
     }
 }
 
