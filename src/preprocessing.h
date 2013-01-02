@@ -15,6 +15,7 @@ public:
     static void getMedianFilter5( Mat& img );
     static void getExpansion(Mat& img);
     static Mat  getUCHARImage(Mat& img,float value);
+    static Mat getMedianBlur(Mat img, int blurSize);
 
 
 };

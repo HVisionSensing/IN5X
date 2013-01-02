@@ -212,7 +212,9 @@ std::vector<u_char> Histogram1D::getSeuilByDerivCumul()
     {
         for(int i = 1 ; i < mHistCumulDeriv.rows-1; i++)
             if( mHistCumulDeriv.at<float>(i-1) > 0 && mHistCumulDeriv.at<float>(i) < 0 )
+            {
                 mVecSeuil.push_back(i);
+            }
     }
     return mVecSeuil;
 }

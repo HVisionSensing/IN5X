@@ -27,6 +27,9 @@ public:
     static Mat getInverse(Mat img);
     static Mat getDistanceTransform(Mat img);
     static Mat getMaxLocHyst(Mat img,u_char Sh, u_char Sb ,int connexity );
+    static Mat getSkeletonByDistanceMap(Mat dst);
+    static Mat extractMat(Mat img, int xL, int xR, int yU, int yD);
+    static Mat getExtractMat(Mat img);
 };
 
 #endif // PROCESSING_H

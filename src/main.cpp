@@ -16,7 +16,7 @@ void calcSeuil(MatND &hist);
 
 int main(void)
 {
-    FileStorage fs("../IN5X/res/4.yml", FileStorage::READ);
+    FileStorage fs("../IN5X/res/7.yml", FileStorage::READ);
 
     Mat temp;
 
@@ -35,25 +35,31 @@ int main(void)
     h.cumulHist();
     h.derivCumul();
 
-    std::vector<u_char> vecSeuil = h.getSeuilByDerivCumul();
+    //std::vector<u_char> vecSeuil = h.getSeuilByDerivCumul();
 
-    Mat thresholded = Processing::threshold(img,vecSeuil.at(1));
+    Mat thresholded = Processing::threshold(img,28);
+    imshow("Threshold",thresholded);
 
-    Mat kernel = Processing::getKernel(CV_SHAPE_RECT,Size_<int>(3,3));
-    Mat inv = Processing::getInverse(thresholded);
+    Mat blur=PreProcessing::getMedianBlur(thresholded,9);
+    imshow("Blur",blur);
 
-    Mat ero = Processing::getErosion(inv,kernel,1);
-    Mat fermeture = Processing::getDilatation(ero,kernel,1);
+    Mat extracted = Processing::getExtractMat(blur);
+    imshow("Extracted",extracted);
 
-    Mat squelette = Processing::getDistanceTransform(fermeture);
+    Mat inv = Processing::getInverse(extracted);
 
-    Mat squeletteUChar = PreProcessing::getUCHARImage(squelette,1.0);
-    PreProcessing::getExpansion(squeletteUChar);
-    Mat squeletteFinal = Processing::getMaxLocHyst(squeletteUChar,180,(u_char)0.4*180,Processing::CONNEXITY_8);
+    Mat distance = Processing::getDistanceTransform(inv);
 
-    imshow("DT",squeletteUChar);
-    imshow("Squelette Final",squeletteFinal);
+    Mat distanceUChar = PreProcessing::getUCHARImage(distance,1.0);
+    PreProcessing::getExpansion(distanceUChar);
 
+    Mat kernel2 = Processing::getKernel(CV_SHAPE_RECT,Size_<int>(2,2));
+    Mat squeletteDMap = Processing::getSkeletonByDistanceMap(distanceUChar);
+    squeletteDMap=Processing::getErosion(squeletteDMap,kernel2,1);
+    squeletteDMap=Processing::getDilatation(squeletteDMap,kernel2,1);
+
+    imshow("Cartes des distances",distanceUChar);
+    imshow("Squelette",squeletteDMap);
 
     waitKey(0);
     fs.release();
