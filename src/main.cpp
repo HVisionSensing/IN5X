@@ -19,7 +19,8 @@ void calcSeuil(MatND &hist);
 
 int main(void)
 {
-    FileStorage fs("../IN5X/res/1.yml", FileStorage::READ);
+
+    FileStorage fs("../IN5X/res/7.yml", FileStorage::READ);
 
     Mat temp;
 
@@ -29,20 +30,37 @@ int main(void)
     PreProcessing::getExpansion(img);
     PreProcessing::getMedianFilter3(img);
 
+    imshow("Image",img);
+
     Histogram1D h(img);
     Mat histImg = h.getHistogramImage();
     h.cumulHist();
     h.derivCumul();
     std::vector<u_char> vecSeuil = h.getSeuilByDerivCumul();
 
-    Mat thresholded = Processing::threshold(img,26);
+    //std::cout<<h.getHistogramDerivCumul()<<std::endl;
+
+    //int seuil = PreProcessing::getThreshold(h.getHistogram());
+
+    std::vector<u_char> vecSeuil = h.getSeuilByDerivCumul();
+
+    /*imshow("Histogram cumulé",h.getHistogramCumulImage());
+    imshow("Histogram cumulé dérivé",h.getHistogramCumulDerivImage());*/
+
+    Mat thresholded = Processing::threshold(img,28);
+    imshow("Threshold",thresholded);
+
     Mat blur=PreProcessing::getMedianBlur(thresholded,8);
 
     std::vector<int> coords = Processing::getExtractCoord(blur);
     Mat extracted = Processing::getExtractMat(blur,coords);
-    Mat inv = Processing::getInverse(extracted);
 
-    Mat squelette = Processing::getThinning(inv,Processing::CONNEXITY_8,50);
+    imshow("Extracted",extracted);
+    Mat inv = Processing::getInverse(blur);
+
+    Processing::getConvexHullMat(inv);
+
+    /*Mat squelette = Processing::getThinning(inv,Processing::CONNEXITY_8,50);
 
     Mat distance = Processing::getDistanceTransform(inv);
     Mat squeletteUChar = PreProcessing::getUCHARImage(distance,1.0);
@@ -54,8 +72,7 @@ int main(void)
     display::drawPoints(img,center,vec_extrem,vec_multi,coords);
 
     Recognition::STATE state = Recognition::getRecognition(vec_extrem,center);
-
-    imshow("Squelette Final",squelette);
+    */
 
     waitKey(0);
     fs.release();
