@@ -99,10 +99,10 @@ void PreProcessing::getExpansion(Mat &img)
         }
 }
 
-Mat PreProcessing::getMedianBlur(Mat img, int blurSize)
+Mat1b PreProcessing::getMedianBlur(Mat img, int blurSize)
 {
 
-    Mat blur=Mat(img.rows,img.cols,CV_8UC1);
+    Mat1b blur = Mat(img.rows,img.cols,CV_8UC1);
 
     for ( int i = 1; i < blurSize; i = i + 2 )
     {

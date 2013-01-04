@@ -69,7 +69,6 @@ Mat Processing::getKernel(int shape,Size size)
 
 Mat Processing::getInverse(Mat img)
 {
-
     Mat dst = Mat(img.rows,img.cols,CV_8UC1,Scalar(255));
 
     for (int i  = 0 ; i < img.rows ; i++)
@@ -88,7 +87,6 @@ Mat Processing::getDistanceTransform(Mat img)
 }
 Mat Processing::getSkeletonByDistanceMap(Mat dst)
 {
-
     Mat laplace,tempSkeleton;
     Laplacian(dst, laplace, CV_16S, 3, 1, 0, BORDER_DEFAULT);
     compare(laplace,-3,tempSkeleton,CV_CMP_LE);
@@ -490,33 +488,169 @@ std::vector<Point2i> Processing::getSkelExtremity(Mat img)
 }
 std::vector<Point2i> Processing::getMultiPoints(Mat img)
 {
-    std::vector<Point2i> vec_pt;
-
+    ELEM_STATE currentState = NO;
     Point2i pt;
-    for(int i = 0; i < img.rows; i++)
-        for(int j=0; j < img.cols; j++)
-        {
-            if(img.at<u_char>(i,j) == 255)
+    std::vector<Point2i> vect_pt;
+    int it =0;
+    while(it < 8)
+    {
+        it++;
+        currentState = getNextState(currentState);
+
+        for(int i = 1; i < img.rows-1; i++)
+            for(int j=1; j < img.cols-1; j++)
             {
-                int nb = 0;
-                if(img.at<u_char>(i-1,j-1) == 255)nb++;
-                if(img.at<u_char>(i-1,j) == 255)nb++;
-                if(img.at<u_char>(i-1,j+1) == 255)nb++;
-
-                if(img.at<u_char>(i,j-1) == 255)nb++;
-                if(img.at<u_char>(i,j+1) == 255)nb++;
-
-                if(img.at<u_char>(i+1,j-1) == 255)nb++;
-                if(img.at<u_char>(i+1,j) == 255)nb++;
-                if(img.at<u_char>(i+1,j+1) == 255)nb++;
-
-                if(nb >= 4)
+                switch(currentState)
                 {
-                    pt = Point2i(j,i);
-                    vec_pt.push_back(pt);
+                case N:
+                    if((img.at<u_char>(i,j-1) == 255 &&
+                        img.at<u_char>(i,j) == 255 &&
+                        img.at<u_char>(i,j+1) == 255 &&
+                        img.at<u_char>(i+1,j) == 255 &&
+                        img.at<u_char>(i-1,j-1) == 0 &&
+                        img.at<u_char>(i-1,j+1) == 0 &&
+                        img.at<u_char>(i+1,j+1) == 0 &&
+                        img.at<u_char>(i+1,j-1) == 0) ||
+                            (img.at<u_char>(i,j-1) == 255 &&
+                             img.at<u_char>(i,j) == 255 &&
+                             img.at<u_char>(i,j+1) == 255 &&
+                             img.at<u_char>(i+1,j) == 255 &&
+                             img.at<u_char>(i-1,j) == 0)){
+                        pt = Point2i(j,i);
+                        vect_pt.push_back(pt);
+                    }
+                    break;
+                case NE:
+                    if((img.at<u_char>(i-1,j-1) == 255 &&
+                        img.at<u_char>(i,j) == 255 &&
+                        img.at<u_char>(i+1,j-1) == 255 &&
+                        img.at<u_char>(i+1,j+1) == 255 &&
+                        img.at<u_char>(i-1,j) == 0 &&
+                        img.at<u_char>(i,j-1) == 0 &&
+                        img.at<u_char>(i,j+1) == 0 &&
+                        img.at<u_char>(i+1,j) == 0)||
+                            (img.at<u_char>(i-1,j-1) == 255 &&
+                             img.at<u_char>(i,j) == 255 &&
+                             img.at<u_char>(i+1,j-1) == 255 &&
+                             img.at<u_char>(i+1,j+1) == 255 &&
+                             img.at<u_char>(i-1,j+1) == 0)){
+                        pt = Point2i(j,i);
+                        vect_pt.push_back(pt);
+                    }
+                    break;
+                case E:
+                    if((img.at<u_char>(i-1,j) == 255 &&
+                        img.at<u_char>(i,j) == 255 &&
+                        img.at<u_char>(i+1,j) == 255 &&
+                        img.at<u_char>(i,j-1) == 255 &&
+                        img.at<u_char>(i-1,j-1) == 0 &&
+                        img.at<u_char>(i-1,j+1) == 0 &&
+                        img.at<u_char>(i+1,j+1) == 0 &&
+                        img.at<u_char>(i+1,j-1) == 0)||
+                            (img.at<u_char>(i-1,j) == 255 &&
+                             img.at<u_char>(i,j) == 255 &&
+                             img.at<u_char>(i+1,j) == 255 &&
+                             img.at<u_char>(i,j-1) == 255 &&
+                             img.at<u_char>(i,j+1) == 0)){
+                        pt = Point2i(j,i);
+                        vect_pt.push_back(pt);
+                    }
+                    break;
+                case SE:
+                    if((img.at<u_char>(i,j) == 255 &&
+                        img.at<u_char>(i-1,j-1) == 255 &&
+                        img.at<u_char>(i-1,j+1) == 255 &&
+                        img.at<u_char>(i+1,j-1) == 255 &&
+                        img.at<u_char>(i-1,j) == 0 &&
+                        img.at<u_char>(i,j-1) == 0 &&
+                        img.at<u_char>(i,j+1) == 0 &&
+                        img.at<u_char>(i+1,j) == 0)||
+                            (img.at<u_char>(i,j) == 255 &&
+                             img.at<u_char>(i-1,j-1) == 255 &&
+                             img.at<u_char>(i-1,j+1) == 255 &&
+                             img.at<u_char>(i+1,j-1) == 255 &&
+                             img.at<u_char>(i-1,j) == 0)){
+                        pt = Point2i(j,i);
+                        vect_pt.push_back(pt);
+                    }
+                    break;
+                case S:
+                    if((img.at<u_char>(i,j) == 255 &&
+                        img.at<u_char>(i-1,j) == 255 &&
+                        img.at<u_char>(i,j+1) == 255 &&
+                        img.at<u_char>(i,j-1) == 255 &&
+                        img.at<u_char>(i-1,j-1) == 0 &&
+                        img.at<u_char>(i-1,j+1) == 0 &&
+                        img.at<u_char>(i+1,j+1) == 0 &&
+                        img.at<u_char>(i+1,j-1) == 0)||
+                            (img.at<u_char>(i,j) == 255 &&
+                             img.at<u_char>(i-1,j) == 255 &&
+                             img.at<u_char>(i,j+1) == 255 &&
+                             img.at<u_char>(i,j-1) == 255 &&
+                             img.at<u_char>(i+1,j) == 0)){
+                        pt = Point2i(j,i);
+                        vect_pt.push_back(pt);
+                    }
+                    break;
+                case SO:
+                    if((img.at<u_char>(i,j) == 255 &&
+                        img.at<u_char>(i-1,j-1) == 255 &&
+                        img.at<u_char>(i-1,j+1) == 255 &&
+                        img.at<u_char>(i+1,j+1) == 255 &&
+                        img.at<u_char>(i-1,j) == 0 &&
+                        img.at<u_char>(i,j-1) == 0 &&
+                        img.at<u_char>(i,j+1) == 0 &&
+                        img.at<u_char>(i+1,j) == 0)||
+                            (img.at<u_char>(i,j) == 255 &&
+                             img.at<u_char>(i-1,j-1) == 255 &&
+                             img.at<u_char>(i-1,j+1) == 255 &&
+                             img.at<u_char>(i+1,j+1) == 255 &&
+                             img.at<u_char>(i+1,j-1) == 0 )){
+                        pt = Point2i(j,i);
+                        vect_pt.push_back(pt);
+                    }
+                    break;
+                case O:
+                    if((img.at<u_char>(i,j) == 255 &&
+                        img.at<u_char>(i-1,j) == 255 &&
+                        img.at<u_char>(i,j+1) == 255 &&
+                        img.at<u_char>(i+1,j) == 255 &&
+                        img.at<u_char>(i-1,j-1) == 0 &&
+                        img.at<u_char>(i-1,j+1) == 0 &&
+                        img.at<u_char>(i+1,j+1) == 0 &&
+                        img.at<u_char>(i+1,j-1) == 0)||
+                            (img.at<u_char>(i,j) == 255 &&
+                             img.at<u_char>(i-1,j) == 255 &&
+                             img.at<u_char>(i,j+1) == 255 &&
+                             img.at<u_char>(i+1,j) == 255 &&
+                             img.at<u_char>(i,j-1) == 0)){
+                        pt = Point2i(j,i);
+                        vect_pt.push_back(pt);
+                    }
+                    break;
+                case NO:
+                    if((img.at<u_char>(i,j) == 255 &&
+                        img.at<u_char>(i-1,j+1) == 255 &&
+                        img.at<u_char>(i+1,j+1) == 255 &&
+                        img.at<u_char>(i+1,j-1) == 255 &&
+                        img.at<u_char>(i-1,j) == 0 &&
+                        img.at<u_char>(i,j-1) == 0 &&
+                        img.at<u_char>(i,j+1) == 0 &&
+                        img.at<u_char>(i+1,j) == 0)||
+                            (img.at<u_char>(i,j) == 255 &&
+                             img.at<u_char>(i-1,j+1) == 255 &&
+                             img.at<u_char>(i+1,j+1) == 255 &&
+                             img.at<u_char>(i+1,j-1) == 255 &&
+                             img.at<u_char>(i-1,j-1) == 0)){
+                        pt = Point2i(j,i);
+                        vect_pt.push_back(pt);
+                    }
+                    break;
+                default:
+                    break;
                 }
             }
-        }
-    return vec_pt;
+    }
+    return vect_pt;
 }
 
