@@ -16,7 +16,6 @@ Mat PreProcessing::getUCHARImage(Mat& img,float value)
     }
     return dst;
 }
-
 void PreProcessing::getMedianFilter3(Mat &img)
 {
     for(int i = 1 ; i < img.rows-1 ; i++)
@@ -99,3 +98,17 @@ void PreProcessing::getExpansion(Mat &img)
             img.at<u_char>(i,j) = (255*(img.at<u_char>(i,j)-min))/tmp;
         }
 }
+
+Mat PreProcessing::getMedianBlur(Mat img, int blurSize)
+{
+
+    Mat blur=Mat(img.rows,img.cols,CV_8UC1);
+
+    for ( int i = 1; i < blurSize; i = i + 2 )
+    {
+        medianBlur(img,blur,i);
+    }
+    return blur;
+}
+
+

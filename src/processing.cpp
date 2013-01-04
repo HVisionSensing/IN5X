@@ -82,105 +82,131 @@ Mat Processing::getInverse(Mat img)
 Mat Processing::getDistanceTransform(Mat img)
 {
     Mat dst = Mat(img.rows,img.cols,CV_32FC1);
-    distanceTransform(img,dst,CV_DIST_L2,CV_DIST_MASK_5);
+    distanceTransform(img,dst,CV_DIST_L2,CV_DIST_MASK_3);
     normalize(dst,dst,0.0,1.0,NORM_MINMAX);
     return dst;
 }
-Mat Processing::getMaxLocHyst(Mat img, u_char Sh, u_char Sb,int connexity )
+Mat Processing::getSkeletonByDistanceMap(Mat dst)
 {
+<<<<<<< HEAD
     Mat dst=Mat(img.rows,img.cols,CV_8UC1,Scalar_<u_char>(150));
 
     int nbPixel = 0;
     int nbPixelModif = 0;
+=======
+    Mat laplace,tempSkeleton;
+    Laplacian(dst, laplace, CV_16S, 3, 1, 0, BORDER_DEFAULT);
+    compare(laplace,-3,tempSkeleton,CV_CMP_LE);
 
-    for(int i=0 ; i < img.rows ; i++)
-        for(int j=0 ; j < img.cols ; j++)
-        {
-            if(img.at<u_char>(i,j) > Sh){dst.at<u_char>(i,j) = 255;nbPixelModif++;}
-            else if (img.at<u_char>(i,j) < Sb)dst.at<u_char>(i,j) = Sb;
-            else{
-                if(searchConnexity(img,i,j,Sh,connexity))
-                    dst.at<u_char>(i,j) = Sh;
-                else dst.at<u_char>(i,j) = Sb;
-            }
-        }
-    return dst;
+    Mat skeleton = tempSkeleton;
+>>>>>>> b13a3297701ebdf3b8bba67f242162dbe392d852
+
+    return skeleton;
 }
-void Processing::searchConnexityPath(Mat img,Mat& dst, int i, int j,u_char Sb,u_char Sh,int pathCode)
+
+int Processing::getNeighbors8(img,i,j)
 {
+    int k=0;
 
-    /* if(pathCode == CONNEXITY_4)
-    {
-        dst.at<u_char>(i,j) = 255;
-        Scalar_<u_char> vois =  Scalar_<u_char>(img.at<u_char>(i-1,j),
-                                                img.at<u_char>(i,j-1),
-                                                img.at<u_char>(i,j+1),
-                                                img.at<u_char>(i+1,j));
-        u_char max = 0;
-        int ind = 0;
-        for(int k = 0 ; k< vois.rows ; k++ )
-            if(vois[k] > max && vois[k])
+    for(r=i-1;r<=i+1;r++)
+        for(c=j-1;c<=j+1;c++)
+            if(r!=i || c!=j)
             {
-                max = vois[k];
-                ind =k;
+                if(img.at<u_char>(r,c)==255) k++;
             }
 
-        if(max >= Sb)
+
+    return k;
+}
+
+Mat Processing::getExtractMat(Mat img)
+{
+    int xL,xR,yU,yD;
+
+    bool isXLassigned=false,isXRassigned=false,isYUassigned=false,isYDassigned=false;
+
+<<<<<<< HEAD
+    /* if(pathCode == CONNEXITY_4)
+=======
+    for(int i=0; i<img.rows;i++)
+>>>>>>> b13a3297701ebdf3b8bba67f242162dbe392d852
+    {
+        if(isYUassigned) break;
+
+        for(int j=0; j<img.cols;j++)
         {
-            int X;
-            int Y;
-            switch(ind){
-            case 0:
-                X=i-1;
-                Y=j;
-                break;
-            case 1:
-                X=i;
-                Y=j-1;
-                break;
-            case 2:
-                X=i;
-                Y=j+1;
-                break;
-            case 3:
-                X=i+1;
-                Y=j;
+            if(img.at<u_char>(i,j)==0)
+            {
+                yU=i-1;
+                isYUassigned=true;
                 break;
             }
-            if(dst.at<u_char>(X,Y) != 255)
-                searchConnexityPath(img,dst,X,Y,Sb,Sh,CONNEXITY_4);
         }
 
-    }*/
-    if(pathCode == CONNEXITY_8)
+    }
+    for(int i=yU+1; i<img.rows;i++)
     {
-        dst.at<u_char>(i,j) = 255;
-        u_char max = 0;
-        int X = -1,Y = -1;
-        int nb = 0;
-        for(int r = i-1 ; r <= i+1 ; r++)
-            for(int c = j-1 ; c <= j+1; c++)
-            {
-                if(dst.at<u_char>(r,c) == 255)nb++;
-                if(img.at<u_char>(r,c) >= max && img.at<u_char>(r,c) >= Sb && dst.at<u_char>(r,c) != 255 )
-                {
-                    max = img.at<u_char>(r,c) ;
-                    X = r;
-                    Y = c;
-                }
-            }
-        if(X != -1 && Y!=-1 && nb==1)
+        bool containsBlackPx=false;
+        if(isYDassigned) break;
+
+        for(int j=0; j<img.cols;j++)
         {
-            dst.at<u_char>(X,Y) = 255;
-            searchConnexityPath(img,dst,X,Y,Sb,Sh,CONNEXITY_8);
+            if(img.at<u_char>(i,j)==0)
+            {
+                containsBlackPx=true;
+                break;
+            }
+        }
+        if(!containsBlackPx)
+        {
+            yD=i+1;
+            isYDassigned=true;
         }
     }
 
+    for(int j=0; j<img.cols;j++)
+    {
+        if(isXLassigned) break;
 
+        for(int i=yU; i<yD;i++)
+        {
+            if(img.at<u_char>(i,j)==0)
+            {
+                xL=j-1;
+                isXLassigned=true;
+                break;
+            }
+        }
+
+    }
+    for(int j=xL+1; j<img.cols;j++)
+    {
+        bool containsBlackPx=false;
+        if(isXRassigned) break;
+
+        for(int i=yU; i<yD;i++)
+        {
+            if(img.at<u_char>(i,j)==0)
+            {
+                containsBlackPx=true;
+                break;
+            }
+        }
+        if(!containsBlackPx)
+        {
+            xR=j+1;
+            isXRassigned=true;
+        }
+    }
+
+    Mat extracted = extractMat(img,xL,xR,yU,yD);
+
+    return extracted;
 }
 
-bool Processing::searchConnexity(Mat img, int i, int j,u_char Sh, int connexityCode)
+Mat Processing::extractMat(Mat img, int xL, int xR, int yU, int yD)
 {
+<<<<<<< HEAD
     if(connexityCode == CONNEXITY_8)
     {
         for(int r = i-1 ; r <= i+1 ; r++)
@@ -636,4 +662,14 @@ std::vector<Point2i> Processing::getMultiPoints(Mat img)
             }
         }
     return vec_pt;
+=======
+    int width=xR-xL;
+    int height=yD-yU;
+
+    Rect rect = Rect(xL,yU,width,height);
+    Mat extracted = img(rect);
+
+    return extracted;
+
+>>>>>>> b13a3297701ebdf3b8bba67f242162dbe392d852
 }
