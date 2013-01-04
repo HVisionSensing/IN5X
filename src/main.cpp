@@ -10,6 +10,8 @@
 #include "histogram1d.h"
 #include "preprocessing.h"
 #include "processing.h"
+#include "display.h"
+
 using namespace cv;
 
 void calcSeuil(MatND &hist);
@@ -26,8 +28,6 @@ int main(void)
     PreProcessing::getExpansion(img);
     PreProcessing::getMedianFilter3(img);
 
-    imshow("Image viewer", img);
-
     Histogram1D h(img);
     Mat histImg = h.getHistogramImage();
     imshow("Histogram", histImg);
@@ -37,23 +37,27 @@ int main(void)
 
     std::vector<u_char> vecSeuil = h.getSeuilByDerivCumul();
 
-    Mat thresholded = Processing::threshold(img,vecSeuil.at(1));
+    Mat thresholded = Processing::threshold(img,vecSeuil[0]);
 
     Mat kernel = Processing::getKernel(CV_SHAPE_RECT,Size_<int>(3,3));
     Mat inv = Processing::getInverse(thresholded);
 
     Mat ero = Processing::getErosion(inv,kernel,1);
     Mat fermeture = Processing::getDilatation(ero,kernel,1);
+    imshow("main",fermeture);
 
-    Mat squelette = Processing::getDistanceTransform(fermeture);
+    Mat squelette = Processing::getThinning(fermeture,Processing::CONNEXITY_8,50);
 
-    Mat squeletteUChar = PreProcessing::getUCHARImage(squelette,1.0);
+    Mat distance = Processing::getDistanceTransform(fermeture);
+    Mat squeletteUChar = PreProcessing::getUCHARImage(distance,1.0);
     PreProcessing::getExpansion(squeletteUChar);
-    Mat squeletteFinal = Processing::getMaxLocHyst(squeletteUChar,180,(u_char)0.4*180,Processing::CONNEXITY_8);
+    Point2i center = Processing::getDistanceMax(squeletteUChar);
+    std::vector<Point2i> vec_pt = Processing::getSkelExtremity(squelette);
+
+    display::drawPoints(img,center,vec_pt);
 
     imshow("DT",squeletteUChar);
-    imshow("Squelette Final",squeletteFinal);
-
+    imshow("Squelette Final",squelette);
 
     waitKey(0);
     fs.release();
