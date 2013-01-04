@@ -520,3 +520,98 @@ std::vector<Point2i> Processing::getMultiPoints(Mat img)
     return vec_pt;
 }
 
+void Processing::convexityDefects(std::vector<Point>& contour, std::vector<int>& hull, std::vector<Point>& convexDefects){
+    if(hull.size() > 0 && contour.size() > 0){
+    CvSeq* contourPoints;
+    CvSeq* defects;
+    CvMemStorage* storage;
+    CvMemStorage* strDefects;
+    CvMemStorage* contourStr;
+    CvConvexityDefect *defectArray = 0;
+
+    strDefects = cvCreateMemStorage();
+    defects = cvCreateSeq( CV_SEQ_KIND_GENERIC|CV_32SC2, sizeof(CvSeq),sizeof(CvPoint), strDefects );
+
+    //We transform our vector<Point> into a CvSeq* object of CvPoint.
+    contourStr = cvCreateMemStorage();
+    contourPoints = cvCreateSeq(CV_SEQ_KIND_GENERIC|CV_32SC2, sizeof(CvSeq), sizeof(CvPoint), contourStr);
+    for(int i=0; i<(int)contour.size(); i++) {
+        CvPoint cp = {contour[i].x,  contour[i].y};
+        cvSeqPush(contourPoints, &cp);
+    }
+
+    //Now, we do the same thing with the hull index
+    int count = (int)hull.size();
+    //int hullK[count];
+    int* hullK = (int*)malloc(count*sizeof(int));
+    for(int i=0; i<count; i++){hullK[i] = hull.at(i);}
+    CvMat hullMat = cvMat(1, count, CV_32SC1, hullK);
+
+    //We calculate convexity defects
+    storage = cvCreateMemStorage(0);
+    defects = cvConvexityDefects(contourPoints, &hullMat, storage);
+    defectArray = (CvConvexityDefect*)malloc(sizeof(CvConvexityDefect)*defects->total);
+    cvCvtSeqToArray(defects, defectArray, CV_WHOLE_SEQ);
+    //printf("DefectArray %i %i\n",defectArray->end->x, defectArray->end->y);
+
+    //We store defects points in the convexDefects parameter.
+    for(int i = 0; i<defects->total; i++){
+        CvPoint ptf;
+        ptf.x = defectArray[i].depth_point->x;
+        ptf.y = defectArray[i].depth_point->y;
+        convexDefects.push_back(ptf);
+    }
+
+    //We release memory
+    cvReleaseMemStorage(&contourStr);
+    cvReleaseMemStorage(&strDefects);
+    cvReleaseMemStorage(&storage);
+    }
+}
+
+void Processing::getConvexHullMat(Mat img)
+{
+    std::vector<std::vector<Point2i> > contours;
+
+
+    // Find contours
+    findContours(img, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+
+    // Find the convex hull object for each contour
+    std::vector<std::vector<Point2i> > hullP(contours.size());
+    std::vector<std::vector<int> > hullI(contours.size());
+    std::vector<std::vector<Point2i> > defects(contours.size());
+    std::vector<std::vector<Point2i> > test;
+    for( int i = 0; i < contours.size(); i++ )
+    {
+        std::vector<Point2i> tmp;
+
+
+        convexHull(Mat(contours[i]), hullP[i], false);
+        convexHull(Mat(contours[i]), hullI[i], false);
+        convexityDefects(contours[i],hullI[i],defects[i]);
+        for(int j =0;j<contours[i].size();j++)
+        {
+            tmp.push_back(hullP[i][j]);
+            tmp.push_back(defects[i][j]);
+        }
+
+        test.push_back(tmp);
+    }
+
+    // Find the convex defects
+
+
+    // Draw contours + hull results
+    Mat drawing = Mat::zeros(img.size(), CV_8UC3 );
+    drawContours( drawing, contours, -1, Scalar_<u_char>(255,0,0), 1, 8, vector<Vec4i>(), 0, Point() );
+    drawContours( drawing, hullP, -1, Scalar_<u_char>(0,0,255), 1, 8, vector<Vec4i>(), 0, Point() );
+
+
+
+    drawContours( drawing, test, -1, Scalar_<u_char>(0,255,0), 1, 8, vector<Vec4i>(), 0, Point() );
+
+    imshow("contours",drawing);
+
+
+}

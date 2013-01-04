@@ -18,7 +18,7 @@ void calcSeuil(MatND &hist);
 
 int main(void)
 {
-    FileStorage fs("../IN5X/res/5.yml", FileStorage::READ);
+    FileStorage fs("../IN5X/res/7.yml", FileStorage::READ);
 
     Mat temp;
 
@@ -28,6 +28,8 @@ int main(void)
     PreProcessing::getExpansion(img);
     PreProcessing::getMedianFilter3(img);
 
+    imshow("Image",img);
+
     Histogram1D h(img);
     Mat histImg = h.getHistogramImage();
     imshow("Histogram", histImg);
@@ -35,11 +37,17 @@ int main(void)
     h.cumulHist();
     h.derivCumul();
 
-    //std::vector<u_char> vecSeuil = h.getSeuilByDerivCumul();
+    //std::cout<<h.getHistogramDerivCumul()<<std::endl;
 
-    Mat thresholded = Processing::threshold(img,22);
+    //int seuil = PreProcessing::getThreshold(h.getHistogram());
+
+    std::vector<u_char> vecSeuil = h.getSeuilByDerivCumul();
+
+    /*imshow("Histogram cumulé",h.getHistogramCumulImage());
+    imshow("Histogram cumulé dérivé",h.getHistogramCumulDerivImage());*/
+
+    Mat thresholded = Processing::threshold(img,28);
     imshow("Threshold",thresholded);
-
 
     Mat blur=PreProcessing::getMedianBlur(thresholded,8);
     imshow("Blur",blur);
@@ -47,9 +55,11 @@ int main(void)
     std::vector<int> coords = Processing::getExtractCoord(blur);
     Mat extracted = Processing::getExtractMat(blur,coords);
     imshow("Extracted",extracted);
-    Mat inv = Processing::getInverse(extracted);
+    Mat inv = Processing::getInverse(blur);
 
-    Mat squelette = Processing::getThinning(inv,Processing::CONNEXITY_8,50);
+    Processing::getConvexHullMat(inv);
+
+    /*Mat squelette = Processing::getThinning(inv,Processing::CONNEXITY_8,50);
 
     Mat distance = Processing::getDistanceTransform(inv);
     Mat squeletteUChar = PreProcessing::getUCHARImage(distance,1.0);
@@ -60,7 +70,7 @@ int main(void)
     display::drawPoints(img,center,vec_pt,coords);
 
     imshow("DT",squeletteUChar);
-    imshow("Squelette Final",squelette);
+    imshow("Squelette Final",squelette);*/
 
     waitKey(0);
     fs.release();

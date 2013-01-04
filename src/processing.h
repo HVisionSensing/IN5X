@@ -40,6 +40,8 @@ public:
     static Mat getSkeletonByDistanceMap(Mat dst);
     static Mat getExtractMat(Mat img, std::vector<int> coords);
     static std::vector<int> getExtractCoord(Mat img);
+    static void getConvexHullMat(Mat img);
+    static void convexityDefects(std::vector<Point>& contour, std::vector<int>& hull, std::vector<Point>& convexDefects);
 };
 
 #endif // PROCESSING_H
