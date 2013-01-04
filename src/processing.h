@@ -31,19 +31,15 @@ public:
     static Mat getInverse(Mat img);
     static Mat getDistanceTransform(Mat img);
     static Mat getMaxLocHyst(Mat img,u_char Sh, u_char Sb ,int connexity );
-<<<<<<< HEAD
     static Mat getCannyDetector(Mat img,double Sh, double Sb);
     static Mat getThinning(Mat1b img, int code, int iteration);
-    static Mat getStructElem(int code, ELEM_STATE state);
     static ELEM_STATE getNextState(ELEM_STATE cur);
     static Point2i getDistanceMax(Mat img);
     static std::vector<Point2i> getSkelExtremity(Mat img);
     static std::vector<Point2i> getMultiPoints(Mat img);
-=======
     static Mat getSkeletonByDistanceMap(Mat dst);
-    static Mat extractMat(Mat img, int xL, int xR, int yU, int yD);
-    static Mat getExtractMat(Mat img);
->>>>>>> b13a3297701ebdf3b8bba67f242162dbe392d852
+    static Mat getExtractMat(Mat img, std::vector<int> coords);
+    static std::vector<int> getExtractCoord(Mat img);
 };
 
 #endif // PROCESSING_H

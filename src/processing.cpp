@@ -88,48 +88,24 @@ Mat Processing::getDistanceTransform(Mat img)
 }
 Mat Processing::getSkeletonByDistanceMap(Mat dst)
 {
-<<<<<<< HEAD
-    Mat dst=Mat(img.rows,img.cols,CV_8UC1,Scalar_<u_char>(150));
 
-    int nbPixel = 0;
-    int nbPixelModif = 0;
-=======
     Mat laplace,tempSkeleton;
     Laplacian(dst, laplace, CV_16S, 3, 1, 0, BORDER_DEFAULT);
     compare(laplace,-3,tempSkeleton,CV_CMP_LE);
 
     Mat skeleton = tempSkeleton;
->>>>>>> b13a3297701ebdf3b8bba67f242162dbe392d852
 
     return skeleton;
 }
 
-int Processing::getNeighbors8(img,i,j)
-{
-    int k=0;
-
-    for(r=i-1;r<=i+1;r++)
-        for(c=j-1;c<=j+1;c++)
-            if(r!=i || c!=j)
-            {
-                if(img.at<u_char>(r,c)==255) k++;
-            }
-
-
-    return k;
-}
-
-Mat Processing::getExtractMat(Mat img)
+std::vector<int> Processing::getExtractCoord(Mat img)
 {
     int xL,xR,yU,yD;
+    std::vector<int> coords;
 
     bool isXLassigned=false,isXRassigned=false,isYUassigned=false,isYDassigned=false;
 
-<<<<<<< HEAD
-    /* if(pathCode == CONNEXITY_4)
-=======
     for(int i=0; i<img.rows;i++)
->>>>>>> b13a3297701ebdf3b8bba67f242162dbe392d852
     {
         if(isYUassigned) break;
 
@@ -199,26 +175,24 @@ Mat Processing::getExtractMat(Mat img)
         }
     }
 
-    Mat extracted = extractMat(img,xL,xR,yU,yD);
+    coords.push_back(xL);
+    coords.push_back(xR);
+    coords.push_back(yU);
+    coords.push_back(yD);
 
-    return extracted;
+    return coords;
 }
 
-Mat Processing::extractMat(Mat img, int xL, int xR, int yU, int yD)
+Mat Processing::getExtractMat(Mat img, std::vector<int> coords)
 {
-<<<<<<< HEAD
-    if(connexityCode == CONNEXITY_8)
-    {
-        for(int r = i-1 ; r <= i+1 ; r++)
-            for(int c = j-1 ; c <= j+1; c++)
-            {
-                if( img.at<u_char>(r,c) > Sh )
-                {
-                    return true;
-                }
-            }
-    }
-    return false;
+    int width=coords[1]-coords[0];
+    int height=coords[3]-coords[2];
+
+    Rect rect = Rect(coords[0],coords[2],width,height);
+    Mat extracted = img(rect);
+
+    return extracted;
+
 }
 
 Mat Processing::getCannyDetector(Mat img, double Sh, double Sb)
@@ -341,124 +315,6 @@ Mat Processing::getThinning(Mat1b img,int code,int iteration)
             }
     }
     return dst;
-}
-
-Mat Processing::getStructElem(int code, ELEM_STATE state)
-{
-    float data[9];
-    switch(state)
-    {
-    case N:
-        data[0] = 1;
-        data[1] = 1;
-        data[2] = 1;
-
-        data[3] = 0;
-        data[4] = 1;
-        data[5] = 0;
-
-        data[6] = 0.5;
-        data[7] = 0.5;
-        data[8] = 0.5;
-        break;
-    case NE:
-        data[0] = 0;
-        data[1] = 1;
-        data[2] = 1;
-
-        data[3] = 0.5;
-        data[4] = 1;
-        data[5] = 1;
-
-        data[6] = 0.5;
-        data[7] = 0.5;
-        data[8] = 0;
-        break;
-    case E:
-        data[0] = 0.5;
-        data[1] = 0;
-        data[2] = 1;
-
-        data[3] = 0.5;
-        data[4] = 1;
-        data[5] = 1;
-
-        data[6] = 0.5;
-        data[7] = 0;
-        data[8] = 1;
-        break;
-    case SE:
-        data[0] = 0.5;
-        data[1] = 0.5;
-        data[2] = 0;
-
-        data[3] = 0.5;
-        data[4] = 1;
-        data[5] = 1;
-
-        data[6] = 0;
-        data[7] = 1;
-        data[8] = 1;
-        break;
-    case S:
-        data[0] = 0.5;
-        data[1] = 0.5;
-        data[2] = 0.5;
-
-        data[3] = 0;
-        data[4] = 1;
-        data[5] = 0;
-
-        data[6] = 1;
-        data[7] = 1;
-        data[8] = 1;
-        break;
-    case SO:
-        data[0] = 0;
-        data[1] = 0.5;
-        data[2] = 0.5;
-
-        data[3] = 1;
-        data[4] = 1;
-        data[5] = 0.5;
-
-        data[6] = 1;
-        data[7] = 1;
-        data[8] = 0;
-        break;
-    case O:
-        data[0] = 1;
-        data[1] = 0;
-        data[2] = 0.5;
-
-        data[3] = 1;
-        data[4] = 1;
-        data[5] = 0.5;
-
-        data[6] = 1;
-        data[7] = 0;
-        data[8] = 0.5;
-        break;
-    case NO:
-        data[0] = 1;
-        data[1] = 1;
-        data[2] = 0;
-
-        data[3] = 1;
-        data[4] = 1;
-        data[5] = 0.5;
-
-        data[6] = 0;
-        data[7] = 0.5;
-        data[8] = 0.5;
-        break;
-    default:
-        break;
-    }
-
-    Mat elem = Mat(3,3,CV_32FC1,&data);
-    return elem.clone();
-
 }
 Processing::ELEM_STATE Processing::getNextState(Processing::ELEM_STATE cur)
 {
@@ -662,14 +518,5 @@ std::vector<Point2i> Processing::getMultiPoints(Mat img)
             }
         }
     return vec_pt;
-=======
-    int width=xR-xL;
-    int height=yD-yU;
-
-    Rect rect = Rect(xL,yU,width,height);
-    Mat extracted = img(rect);
-
-    return extracted;
-
->>>>>>> b13a3297701ebdf3b8bba67f242162dbe392d852
 }
+

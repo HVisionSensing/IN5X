@@ -7,7 +7,11 @@ TARGET = IN5X
 TEMPLATE = app
 
 SOURCES += \
-    src/main.cpp
+    src/main.cpp \
+    src/processing.cpp \
+    src/preprocessing.cpp \
+    src/histogram1d.cpp \
+    src/display.cpp
 
 OTHER_FILES += \
     res/7.yml \
@@ -36,3 +40,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/lib/
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/lib/debug/ -lopencv_imgproc
 else:symbian: LIBS += -lopencv_imgproc
 else:unix: LIBS += -L$$PWD/../../../../usr/local/lib/ -lopencv_imgproc
+
+HEADERS += \
+    src/processing.h \
+    src/preprocessing.h \
+    src/histogram1d.h \
+    src/display.h
