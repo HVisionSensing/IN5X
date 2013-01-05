@@ -11,7 +11,10 @@ SOURCES += \
     src/processing.cpp \
     src/preprocessing.cpp \
     src/histogram1d.cpp \
-    src/display.cpp
+    src/display.cpp \
+    src/recognition.cpp \
+    src/inwindow.cpp \
+    src/image.cpp
 
 OTHER_FILES += \
     res/7.yml \
@@ -45,4 +48,11 @@ HEADERS += \
     src/processing.h \
     src/preprocessing.h \
     src/histogram1d.h \
-    src/display.h
+    src/display.h \
+    src/recognition.h \
+    src/inwindow.h \
+    image.h \
+    src/image.h
+
+FORMS += \
+    mainwindow.ui

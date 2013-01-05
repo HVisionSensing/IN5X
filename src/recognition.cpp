@@ -3,15 +3,10 @@
 Recognition::Recognition()
 {
 }
-
-void Recognition::displayRecognition(STATE state)
-{
-}
-
-Recognition::STATE Recognition::getNumberFingers(std::vector<Point2i> vect_extrem, Point2i center)
+Recognition::STATE Recognition::getState(std::vector<Point2i> defects)
 {
     //DISTANCE EUCLIDIENNE
-    int nb = 0;
+    /*int nb = 0;
     std::vector<Point2i>::iterator it = vect_extrem.begin();
     for(;it != vect_extrem.end();it++)
     {
@@ -19,7 +14,10 @@ Recognition::STATE Recognition::getNumberFingers(std::vector<Point2i> vect_extre
         double dist = sqrt(pow((*it).x-center.x,2)+pow((*it).y-center.y,2));
         if(dist > 40.0)
             nb++;
-    }
+    }*/
+    int nb = defects.size()-1;
+    if(nb < 0)
+        nb = 0;
     switch(nb)
     {
     case 0:
@@ -37,7 +35,7 @@ Recognition::STATE Recognition::getNumberFingers(std::vector<Point2i> vect_extre
     case 4:
         return HAND_4;
         break;
-     case 5:
+    case 5:
         return HAND_5;
         break;
     default:
@@ -46,10 +44,12 @@ Recognition::STATE Recognition::getNumberFingers(std::vector<Point2i> vect_extre
     }
 }
 
-Recognition::STATE Recognition::getRecognition(std::vector<Point2i> vect_extrem, Point2i center)
+Recognition::STATE Recognition::getRecognition(std::vector<Point2i> vect_extrem, std::vector<Point2i> vect_mutli, Point2i center,std::vector<std::vector<Point2i> >  convexhull)
 {
-    STATE state = getNumberFingers(vect_extrem,center);
-    displayRecognition(state);
+    STATE state;
+    std::vector<Point2i> hullP = convexhull[0];
+    std::vector<Point2i> defects = convexhull[1];
+    state = getState(defects);
     return state;
 }
 

@@ -95,7 +95,8 @@ void PreProcessing::getExpansion(Mat &img)
     for(int i = 0 ; i < img.rows ; i++)
         for(int j = 0 ; j < img.cols ; j++)
         {
-            img.at<u_char>(i,j) = (255*(img.at<u_char>(i,j)-min))/tmp;
+            if(tmp != 0)
+                img.at<u_char>(i,j) = (255*(img.at<u_char>(i,j)-min))/tmp;
         }
 }
 
